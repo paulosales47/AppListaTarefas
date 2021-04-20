@@ -15,20 +15,23 @@ class _HomeState extends State<Home> {
       ),
       body: Container(),
       bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
         child: Row(
           children: [
             IconButton(icon: Icon(Icons.menu), onPressed: (){})
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
         elevation: 6,
         onPressed: (){},
-        child: Icon(Icons.add),
+        icon: Icon(Icons.add_shopping_cart),
+        label: Text("Adicionar"),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
     );
   }
