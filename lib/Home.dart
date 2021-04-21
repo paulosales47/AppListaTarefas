@@ -6,6 +6,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  List _listaTarefas = ["Estudar Flutter", "Algoritimos", "Arquitetura", "Desenho"];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,25 +16,48 @@ class _HomeState extends State<Home> {
         title: Text("Lista de Tarefas"),
         backgroundColor: Colors.purple,
       ),
-      body: Container(),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: [
-            IconButton(icon: Icon(Icons.menu), onPressed: (){})
-          ],
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+                itemCount: _listaTarefas.length,
+                itemBuilder: (context, indice){
+                  return ListTile(
+                    title: Text(_listaTarefas[indice]),
+                  );
+                }),
+          )
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
         elevation: 6,
-        onPressed: (){},
-        icon: Icon(Icons.add_shopping_cart),
-        label: Text("Adicionar"),
-        shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        onPressed: (){
+          showDialog(
+              context: context,
+              builder: (context){
+                return AlertDialog(
+                  title: Text("Adicionar tarefa"),
+                  content: TextField(
+                    decoration: InputDecoration(
+                      labelText: "Informe sua tarefa"
+                    ),
+                    onChanged: (valorInformado){
+
+                    },
+                  ),
+                  actions: [
+                    ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Cancelar")),
+                    ElevatedButton(onPressed: (){
+
+                    }, child: Text("Salvar")),
+                  ],
+                );
+              });
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
