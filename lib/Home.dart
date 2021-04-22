@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
 
 class Home extends StatefulWidget {
   @override
@@ -7,7 +11,59 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  List _listaTarefas = ["Estudar Flutter", "Algoritimos", "Arquitetura", "Desenho"];
+  List _listaTarefas = [];
+  var _controllerTarefa = TextEditingController();
+
+  Future<File> _recuperarDiretorioArquivo() async {
+    final diretorio = await getApplicationDocumentsDirectory();
+    return File("${diretorio.path}/dados.json");
+  }
+
+  Future _criarArquivo() async{
+    File arquivo = await _recuperarDiretorioArquivo();
+    if(! await arquivo.exists()){
+      await _salvarArquivo();
+    }
+  }
+
+  Future _salvarArquivo() async {
+    File arquivo = await _recuperarDiretorioArquivo();
+    String listaTarefaJson = json.encode(_listaTarefas);
+    await arquivo.writeAsString(listaTarefaJson);
+  }
+
+  Future _carregarArquivo() async {
+    try {
+      File arquivo = await _recuperarDiretorioArquivo();
+      String dadosArquivo = await arquivo.readAsString();
+      _listaTarefas = json.decode(dadosArquivo);
+    } catch(e){
+      print("ERRO: $e");
+      throw e;
+    }
+  }
+
+  Future _salvarTarefa() async{
+    Map<String, dynamic> tarefa = Map();
+    tarefa["titulo"] = _controllerTarefa.text;
+    tarefa["realizada"] = false;
+    setState(() {
+      _listaTarefas.add(tarefa);
+    });
+    await _salvarArquivo();
+    _controllerTarefa.text = "";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+      _criarArquivo().then((value) {
+        _carregarArquivo().then((value) {
+          setState(() {});
+        });
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +77,15 @@ class _HomeState extends State<Home> {
           Expanded(
             child: ListView.builder(
                 itemCount: _listaTarefas.length,
-                itemBuilder: (context, indice){
-                  return ListTile(
-                    title: Text(_listaTarefas[indice]),
+                itemBuilder: (context, indice) {
+                  return CheckboxListTile(
+                      title: Text(_listaTarefas[indice]["titulo"]),
+                      value: _listaTarefas[indice]["realizada"],
+                      onChanged: (valor) async {
+                        _listaTarefas[indice]["realizada"] = valor;
+                        await _salvarArquivo();
+                        setState(() {});
+                      }
                   );
                 }),
           )
@@ -34,24 +96,24 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
         elevation: 6,
-        onPressed: (){
+        onPressed: () {
           showDialog(
               context: context,
-              builder: (context){
+              builder: (context) {
                 return AlertDialog(
                   title: Text("Adicionar tarefa"),
                   content: TextField(
+                    controller: _controllerTarefa,
                     decoration: InputDecoration(
-                      labelText: "Informe sua tarefa"
+                        labelText: "Informe sua tarefa"
                     ),
-                    onChanged: (valorInformado){
-
-                    },
                   ),
                   actions: [
-                    ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Cancelar")),
-                    ElevatedButton(onPressed: (){
-
+                    ElevatedButton(onPressed: () => Navigator.pop(context),
+                        child: Text("Cancelar")),
+                    ElevatedButton(onPressed: () async {
+                      await _salvarTarefa();
+                      Navigator.pop(context);
                     }, child: Text("Salvar")),
                   ],
                 );
@@ -60,5 +122,10 @@ class _HomeState extends State<Home> {
         child: Icon(Icons.add),
       ),
     );
+
   }
+
+
+
+
 }
