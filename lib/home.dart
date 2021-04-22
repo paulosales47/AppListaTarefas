@@ -108,14 +108,34 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     onDismissed:(direcao) {
+                      Map<String, dynamic> ultimaTarefaRemovida = Map();
+                      ultimaTarefaRemovida = _listaTarefas[indice];
+
                       if(direcao == DismissDirection.startToEnd){
                         _listaTarefas.removeAt(indice);
                         _salvarArquivo().then((value){
                           _carregarArquivo();
                         });
                       }
+
                       if(direcao == DismissDirection.endToStart)
                         print("Editar");
+
+                      final snackBar = SnackBar(
+                        duration: Duration(seconds: 5),
+                        content: Text("Tarefa removida", style: TextStyle(color: Colors.yellow)),
+                        action: SnackBarAction(
+                          label: "Desfazer",
+                          onPressed: () async {
+                            setState(() {
+                              _listaTarefas.insert(indice, ultimaTarefaRemovida);
+                            });
+                            await _salvarArquivo();
+                          },
+                        ),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                     },
                   );
