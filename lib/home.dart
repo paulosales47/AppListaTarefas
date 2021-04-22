@@ -78,14 +78,46 @@ class _HomeState extends State<Home> {
             child: ListView.builder(
                 itemCount: _listaTarefas.length,
                 itemBuilder: (context, indice) {
-                  return CheckboxListTile(
-                      title: Text(_listaTarefas[indice]["titulo"]),
-                      value: _listaTarefas[indice]["realizada"],
-                      onChanged: (valor) async {
-                        _listaTarefas[indice]["realizada"] = valor;
-                        await _salvarArquivo();
-                        setState(() {});
+                  return Dismissible(
+                    key:  UniqueKey(),
+                    direction: DismissDirection.horizontal,
+                    child: CheckboxListTile(
+                        title: Text(_listaTarefas[indice]["titulo"]),
+                        value: _listaTarefas[indice]["realizada"],
+                        onChanged: (valor) async {
+                          _listaTarefas[indice]["realizada"] = valor;
+                          await _salvarArquivo();
+                          setState(() {});
+                        }
+                    ),
+                    background: Container(
+                      color: Colors.red,
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete)
+                        ],
+                      ),
+                    ),
+                    secondaryBackground: Container(
+                      color: Colors.blue,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.edit)
+                        ],
+                      ),
+                    ),
+                    onDismissed:(direcao) {
+                      if(direcao == DismissDirection.startToEnd){
+                        _listaTarefas.removeAt(indice);
+                        _salvarArquivo().then((value){
+                          _carregarArquivo();
+                        });
                       }
+                      if(direcao == DismissDirection.endToStart)
+                        print("Editar");
+
+                    },
                   );
                 }),
           )
